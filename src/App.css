@@ -1,38 +1,86 @@
-.App {
-  text-align: center;
+/* App.css */
+body {
+  margin: 0;
+  font-family: 'Roboto', sans-serif; /* Google's font choice */
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.app-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  background-color: #f5f5f5; /* Light gray background similar to Google's */
 }
 
-.App-link {
-  color: #61dafb;
+.search-container {
+  text-align: center;
+  margin-bottom: 20px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+h1 {
+  color: #1a0dab; /* Google's blue color for headings */
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+}
+
+.search-input {
+  width: 300px;
+  padding: 10px;
+  border: 1px solid #dfe1e5; /* Google's border color */
+  border-radius: 8px;
+  outline: none;
+}
+
+.search-button {
+  background-color: #4285f4; /* Google's blue color for buttons */
+  color: #ffffff;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+.search-button:hover {
+  background-color: #357ae8; /* Darker shade on hover */
+}
+
+.result-container {
+  padding: 10;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.loading-indicator {
+  text-align: center;
+  margin-top: 20px;
+  color: #5f6368; /* Google's gray color for secondary text */
+}
+.intelligent-response,
+.other-responses {
+  margin-top: 20px;
+}
+
+.response-item {
+  background-color: #ffffff; /* Darker shade on hover */
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid #dfe1e5;
+  border-radius: 8px;
+}
+
+a {
+  color: #1a0dab; /* Google's blue color for links */
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline; /* Underline on hover */
+}
+
+.initial-message {
+  margin-top: 20px;
+  color: #5f6368; /* Google's gray color for secondary text */
 }
