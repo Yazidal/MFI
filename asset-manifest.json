@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/MFI/static/css/main.5e087c58.css",
+    "main.js": "/MFI/static/js/main.6ca2ec49.js",
+    "static/js/787.53f653b0.chunk.js": "/MFI/static/js/787.53f653b0.chunk.js",
+    "index.html": "/MFI/index.html",
+    "main.5e087c58.css.map": "/MFI/static/css/main.5e087c58.css.map",
+    "main.6ca2ec49.js.map": "/MFI/static/js/main.6ca2ec49.js.map",
+    "787.53f653b0.chunk.js.map": "/MFI/static/js/787.53f653b0.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.5e087c58.css",
+    "static/js/main.6ca2ec49.js"
+  ]
+}
