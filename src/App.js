@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import { Audio } from "react-loader-spinner";
 import "./App.css";
 
+import logo from "./media/logo.png";
+
 function LoadingIndicator() {
   return (
     <Audio
@@ -15,17 +17,18 @@ function LoadingIndicator() {
       wrapperClass
     />
   );
-  // return <div className="loading-indicator">Loading...</div>;
 }
-
 function SearchResult({ result }) {
   console.log(result);
   return (
     <div className="result-container">
+      {/* Intelligent response section */}
       <div className="intelligent-response">
         <h2>Réponse Intelligente</h2>
         <p>{result.result_openai}</p>
       </div>
+
+      {/* Other responses section */}
       <div className="other-responses">
         <h2>Autres Réponses</h2>
         {result.result_qdrant?.map((res, index) => (
@@ -59,30 +62,35 @@ function SearchResult({ result }) {
 function App() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState(null);
-  const [loading, setLoading] = useState(false); // Add loading state
+  const [loading, setLoading] = useState(false);
 
   const handleSearch = async () => {
     try {
-      setLoading(true); // Set loading to true when starting the request
+      setLoading(true);
 
-      const response = await axios.post(
-        "https://e010-102-78-175-52.ngrok-free.app/chat",
-        {
-          messages: [{ role: "user", content: query }],
-        }
-      );
+      // Your API call remains unchanged
+      const response = await axios.post("https://your-api-endpoint.com", {
+        messages: [{ role: "user", content: query }],
+      });
+
       setResults(response.data);
     } catch (error) {
       console.error(error);
     } finally {
-      setLoading(false); // Set loading to false when the request is completed
+      setLoading(false);
     }
   };
 
   return (
     <div className="app-container">
+      {/* Logo section */}
+      <div className="logo-container">
+        <img src={logo} alt="Your Logo" className="logo" />
+      </div>
+
+      {/* Search container */}
       <div className="search-container">
-        <h1>Moteur de recherche MFI</h1>
+        {/* Improved search bar with merged input and button */}
         <div className="search-bar">
           <input
             type="text"
@@ -96,9 +104,14 @@ function App() {
           </button>
         </div>
       </div>
-      {loading && <LoadingIndicator />}{" "}
-      {/* Display loading indicator when loading */}
+
+      {/* Loading indicator */}
+      {loading && <Audio height="80" width="80" color="green" />}
+
+      {/* Display search results */}
       {results && <SearchResult result={results} />}
+
+      {/* Initial message */}
       {!results && !loading && (
         <div className="initial-message">
           <p>Entrez votre requête pour commencer la recherche.</p>

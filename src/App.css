@@ -1,24 +1,34 @@
 /* App.css */
+
 body {
+  font-family: 'Arial', sans-serif;
   margin: 0;
-  font-family: 'Roboto', sans-serif; /* Google's font choice */
+  padding: 0;
 }
 
 .app-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background-color: #f5f5f5; /* Light gray background similar to Google's */
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
-.search-container {
+.logo-container {
   text-align: center;
   margin-bottom: 20px;
 }
 
+.logo {
+  width: 200px; /* Adjust the width as needed */
+  height: auto;
+}
+
+.search-container {
+  text-align: center;
+}
+
 h1 {
-  color: #1a0dab; /* Google's blue color for headings */
+  font-size: 20px;
+  margin-bottom: 20px;
 }
 
 .search-bar {
@@ -27,60 +37,54 @@ h1 {
 }
 
 .search-input {
-  width: 300px;
+  flex: 1;
   padding: 10px;
-  border: 1px solid #dfe1e5; /* Google's border color */
-  border-radius: 8px;
+  border: 1px solid #dfe1e5;
+  border-radius: 24px;
   outline: none;
 }
 
 .search-button {
-  background-color: #4285f4; /* Google's blue color for buttons */
-  color: #ffffff;
-  padding: 10px 15px;
+  padding: 10px 16px;
+  background-color: #4285f4;
+  color: #fff;
   border: none;
-  border-radius: 8px;
-  margin-left: 10px;
+  border-radius: 24px;
   cursor: pointer;
+  margin-left: 8px; /* Adjust as needed */
 }
 
-.search-button:hover {
-  background-color: #357ae8; /* Darker shade on hover */
-}
-
-.result-container {
-  padding: 10;
-  max-width: 900px;
-  margin: 0 auto;
-}
 .loading-indicator {
   text-align: center;
   margin-top: 20px;
-  color: #5f6368; /* Google's gray color for secondary text */
 }
-.intelligent-response,
-.other-responses {
+
+.result-container {
   margin-top: 20px;
+}
+
+.intelligent-response {
+  margin-bottom: 20px;
+}
+
+.other-responses {
+  /* Add styles as needed */
 }
 
 .response-item {
-  background-color: #ffffff; /* Darker shade on hover */
-  margin-top: 10px;
-  padding: 10px;
   border: 1px solid #dfe1e5;
   border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
 }
 
-a {
-  color: #1a0dab; /* Google's blue color for links */
+.response-item a {
+  color: #1a0dab;
   text-decoration: none;
 }
 
-a:hover {
-  text-decoration: underline; /* Underline on hover */
-}
-
+/* Initial message styles */
 .initial-message {
+  text-align: center;
   margin-top: 20px;
-  color: #5f6368; /* Google's gray color for secondary text */
 }
