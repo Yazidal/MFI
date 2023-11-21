@@ -1,16 +1,16 @@
 {
   "files": {
     "main.css": "/MFI/static/css/main.7f8bdc8f.css",
-    "main.js": "/MFI/static/js/main.081ea4fc.js",
+    "main.js": "/MFI/static/js/main.da8b1c29.js",
     "static/js/787.53f653b0.chunk.js": "/MFI/static/js/787.53f653b0.chunk.js",
     "static/media/logo.png": "/MFI/static/media/logo.58032a28118288ee953a.png",
     "index.html": "/MFI/index.html",
     "main.7f8bdc8f.css.map": "/MFI/static/css/main.7f8bdc8f.css.map",
-    "main.081ea4fc.js.map": "/MFI/static/js/main.081ea4fc.js.map",
+    "main.da8b1c29.js.map": "/MFI/static/js/main.da8b1c29.js.map",
     "787.53f653b0.chunk.js.map": "/MFI/static/js/787.53f653b0.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.7f8bdc8f.css",
-    "static/js/main.081ea4fc.js"
+    "static/js/main.da8b1c29.js"
   ]
 }
