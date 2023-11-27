@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/MFI/static/css/main.fdc85b4f.css",
-    "main.js": "/MFI/static/js/main.ca4a2625.js",
+    "main.js": "/MFI/static/js/main.f00c72e0.js",
     "static/media/logo.png": "/MFI/static/media/logo.58032a28118288ee953a.png",
     "index.html": "/MFI/index.html",
     "main.fdc85b4f.css.map": "/MFI/static/css/main.fdc85b4f.css.map",
-    "main.ca4a2625.js.map": "/MFI/static/js/main.ca4a2625.js.map"
+    "main.f00c72e0.js.map": "/MFI/static/js/main.f00c72e0.js.map"
   },
   "entrypoints": [
     "static/css/main.fdc85b4f.css",
-    "static/js/main.ca4a2625.js"
+    "static/js/main.f00c72e0.js"
   ]
 }
