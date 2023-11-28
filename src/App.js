@@ -18,36 +18,56 @@ function LoadingIndicator() {
     />
   );
 }
+// function SearchResult({ result }) {
+//   return (
+//     <div className="result-container">
+//       <div className="other-responses">
+//         {result.result_qdrant?.map((res, index) => (
+//           <div key={index} className="response-item">
+//             <h3>
+//               <b>Titre de loi:</b> {res.La_loi}
+//             </h3>
+//             {/* <p>
+//               <b>Score:</b> {res.Score}
+//             </p> */}
+//             <p>
+//               <b>Paragraphe:</b> {res.Paragraphe}
+//             </p>
+//             <p>
+//               <b>Collection:</b> {res.collection}
+//             </p>
+//             <a href={res.source} target="_blank" rel="noopener noreferrer">
+//               En savoir plus
+//             </a>
+//           </div>
+//         ))}
+//       </div>
+//     </div>
+//   );
+// }
 function SearchResult({ result }) {
-  console.log(result);
+  // Sort the results by Score in ascending order
+  const sortedResults = result.result_qdrant?.sort((a, b) => b.Score - a.Score);
+
   return (
     <div className="result-container">
-      {/* Intelligent response section */}
-      <div className="intelligent-response">
-        <h2>Réponse Intelligente</h2>
-        <p>{result.result_openai}</p>
-      </div>
-
-      {/* Other responses section */}
       <div className="other-responses">
-        <h2>Autres Réponses</h2>
-        {result.result_qdrant?.map((res, index) => (
+        {sortedResults?.map((res, index) => (
           <div key={index} className="response-item">
             <h3>
-              <b>Titre de loi: </b>
-              {res.La_loi}
+              <b>Titre de loi:</b> {res.titre}
             </h3>
+            {/* <p>
+              <b>Score:</b> {res.Score}
+            </p> */}
             <p>
-              <b>Score: </b>
-              {res.Score}
+              <b>Paragraphe:</b> {res.Paragraphe}
             </p>
             <p>
-              <b>Paragraphe: </b>
-              {res.Paragraphe}
+              <b>Collection:</b> {res.collection}
             </p>
             <p>
-              <b>Collection: </b>
-              {res.collection}
+              <b>Référence:</b> {res.La_loi}
             </p>
             <a href={res.source} target="_blank" rel="noopener noreferrer">
               En savoir plus
@@ -68,10 +88,13 @@ function App() {
     try {
       setLoading(true);
 
-      // Your API call remains unchanged
-      const response = await axios.post("https://your-api-endpoint.com", {
-        messages: [{ role: "user", content: query }],
-      });
+      const response = await axios.post(
+        "https://aymanemalih-qdrant-flask.hf.space/chat",
+        {
+          messages: [{ role: "user", content: query }],
+        }
+      );
+      console.log("response: ", response);
 
       setResults(response.data);
     } catch (error) {
@@ -122,3 +145,28 @@ function App() {
 }
 
 export default App;
+
+// import React from "react";
+// import { Route, BrowserRouter as Router, Switch } from "react-router-dom";
+// // import "./App.css";
+// import Home from "./pages/Home";
+// import SearchPage from "./pages/SearchPage";
+
+// function App() {
+//   return (
+//     <div className="App">
+//       <Router>
+//         <Switch>
+//           <Route path="/MFI/search">
+//             <SearchPage />
+//           </Route>
+//           <Route path="/MFI">
+//             <Home />
+//           </Route>
+//         </Switch>
+//       </Router>
+//     </div>
+//   );
+// }
+
+// export default App;
