@@ -75,6 +75,13 @@ const GoodAnswerButton = styled(Button)({
 const InitialMessage = styled("div")({
   marginTop: "16px", // Add margin top to the div
 });
+const TruncatedTypography = styled(Typography)`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 5; // Adjust the number of lines to your preference
+  -webkit-box-orient: vertical;
+`;
 
 const LineDivider = styled(Divider)({
   width: "100%",
@@ -115,12 +122,12 @@ function SearchResult({ result, onShowPopup }) {
       <Grid container spacing={2}>
         {sortedResults?.map((res, index) => (
           <Grid item key={index} xs={12} sm={6} md={4}>
-            <Card>
+            <Card style={{ height: "100%" }}>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
                   {res.titre}
                 </Typography>
-                <Typography>{res.Paragraphe}</Typography>
+                <TruncatedTypography>{res.Paragraphe}</TruncatedTypography>
                 <Typography>
                   <b>Référence:</b> {res.La_loi}
                 </Typography>
@@ -161,7 +168,7 @@ function App() {
       setLoading(true);
 
       const response = await axios.post(
-        "https:/aymanemalih-qdrant-flask.hf.space/chat",
+        "https://aymanemalih-qdrant-flask.hf.space/chat",
         {
           messages: [{ role: "user", content: query }],
         }
