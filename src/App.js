@@ -79,16 +79,48 @@ const TruncatedTypography = styled(Typography)`
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
-  -webkit-line-clamp: 5; // Adjust the number of lines to your preference
+  -webkit-line-clamp: 9; // Adjust the number of lines to your preference
   -webkit-box-orient: vertical;
 `;
+const DualResultContainer = styled("div")({
+  display: "flex",
+  justifyContent: "space-between",
 
+  marginBottom: "16px",
+  "& > div": {
+    flex: 1,
+    margin: "8px", // Adjust the spacing between the two results
+  },
+});
 const LineDivider = styled(Divider)({
   width: "100%",
   marginTop: "16px",
   marginBottom: "16px",
 });
 
+const SuggestionsList = styled("ul")({
+  listStyle: "none",
+  padding: 0,
+  marginTop: "16px", // Adjust the spacing between the search bar and suggestions list
+  display: "flex",
+  justifyContent: "space-between",
+  flexWrap: "wrap",
+});
+
+const SuggestionItem = styled("li")({
+  width: "48%", // Set the width to 48% for two suggestions per row
+  marginBottom: "8px",
+});
+
+const SuggestionLink = styled("a")({
+  textDecoration: "none",
+  color: "#1976D2", // Adjust the link color
+  cursor: "pointer",
+  transition: "color 0.3s ease-in-out",
+  "&:hover": {
+    color: "#004080", // Adjust the hover color
+  },
+});
 function SearchResult({ result, onShowPopup }) {
   const [clickedResponses, setClickedResponses] = useState([]);
 
@@ -120,37 +152,49 @@ function SearchResult({ result, onShowPopup }) {
   return (
     <ResultContainer>
       <Grid container spacing={2}>
-        {sortedResults?.map((res, index) => (
-          <Grid item key={index} xs={12} sm={6} md={4}>
-            <Card style={{ height: "100%" }}>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  {res.titre}
-                </Typography>
-                <TruncatedTypography>{res.Paragraphe}</TruncatedTypography>
-                <Typography>
-                  <b>Référence:</b> {res.La_loi}
-                </Typography>
-              </CardContent>
-              <CardActions>
-                <Button
-                  variant="outlined"
-                  onClick={() => onShowPopup(res.hyperlink)}
-                  size="small"
-                >
-                  Show Details
-                </Button>
-                <Button
-                  variant="contained"
-                  onClick={() => handleGoodAnswer(res.La_loi)}
-                  disabled={clickedResponses.includes(res.La_loi)}
-                >
-                  Good Answer
-                </Button>
-              </CardActions>
-            </Card>
-          </Grid>
-        ))}
+        {result?.map(
+          (res, index) =>
+            res.titre && (
+              <Grid item key={index} xs={12} sm={6} md={6}>
+                <Card style={{ height: "100%" }}>
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom>
+                      {res.titre}
+                    </Typography>
+                    <TruncatedTypography>
+                      {res.GPT_Response ? res.GPT_Response : res.Paragraphe}
+                    </TruncatedTypography>
+                    <Typography>
+                      <b>Référence:</b>{" "}
+                      {res.reference ? res.reference : res.La_loi}
+                    </Typography>
+                  </CardContent>
+                  <CardActions>
+                    <Button
+                      variant="outlined"
+                      onClick={() =>
+                        onShowPopup({
+                          id: res.hyperlink,
+                          section: res.section_label,
+                          sectiontext: res.section_text,
+                        })
+                      }
+                      size="small"
+                    >
+                      Show Details
+                    </Button>
+                    <Button
+                      variant="contained"
+                      onClick={() => handleGoodAnswer(res.La_loi)}
+                      disabled={clickedResponses.includes(res.La_loi)}
+                    >
+                      Good Answer
+                    </Button>
+                  </CardActions>
+                </Card>
+              </Grid>
+            )
+        )}
       </Grid>
     </ResultContainer>
   );
@@ -159,23 +203,42 @@ function SearchResult({ result, onShowPopup }) {
 function App() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState(null);
+  const [resultsQdrant, setResultsQdrant] = useState(null);
   const [loading, setLoading] = useState(false);
   const [selectedResultId, setSelectedResultId] = useState(null);
+  const [section, setSection] = useState(null);
+  const [otherResults, setOtherResults] = useState(null);
+
+  // Inside your React component
 
   const handleSearch = async () => {
     setResults(null);
+    setOtherResults(null);
+    setResultsQdrant(null);
     try {
       setLoading(true);
 
-      const response = await axios.post(
+      const response = await axios.post("http://127.0.0.1:5000/ask", {
+        question: query,
+      });
+      const responseQdrant = await axios.post(
         "https://aymanemalih-qdrant-flask.hf.space/chat",
         {
           messages: [{ role: "user", content: query }],
         }
       );
-      console.log("response: ", response);
-
+      const autresquestions = await axios.post(
+        "https://aymanemalih-qdrant-flask.hf.space/generateQuestions",
+        {
+          messages: [{ role: "user", content: query }],
+        }
+      );
+      console.log("response: ", response.data);
+      console.log("responseQdrant: ", responseQdrant.data);
+      console.log("autresquestions: ", autresquestions.data);
+      setResultsQdrant(responseQdrant.data);
       setResults(response.data);
+      setOtherResults(autresquestions.data);
     } catch (error) {
       console.error(error);
     } finally {
@@ -184,6 +247,7 @@ function App() {
   };
 
   const handleShowPopup = (resultId) => {
+    console.log("showPopup: ", resultId);
     setSelectedResultId(resultId);
   };
 
@@ -226,11 +290,65 @@ function App() {
         </SearchBar>
       </SearchContainer>
 
-      {results && <LineDivider />}
-
-      {results && (
-        <SearchResult result={results} onShowPopup={handleShowPopup} />
+      {otherResults && otherResults.length > 0 && (
+        <>
+          <Typography variant="h5" gutterBottom>
+            Questions similaire
+          </Typography>
+          <SuggestionsList>
+            {otherResults.slice(0, 3).map((suggestion, index) => (
+              <SuggestionItem key={index}>
+                <SuggestionLink onClick={() => setQuery(suggestion.slice(3))}>
+                  <Typography>{suggestion.slice(3)}</Typography>
+                </SuggestionLink>
+              </SuggestionItem>
+            ))}
+            {otherResults.slice(3, 6).map((suggestion, index) => (
+              <SuggestionItem key={index}>
+                <SuggestionLink onClick={() => setQuery(suggestion.slice(3))}>
+                  <Typography>{suggestion.slice(3)}</Typography>
+                </SuggestionLink>
+              </SuggestionItem>
+            ))}
+          </SuggestionsList>
+        </>
       )}
+      {results || resultsQdrant ? <LineDivider /> : null}
+
+      {results || resultsQdrant ? (
+        <DualResultContainer>
+          {results ? (
+            <>
+              <ResultContainer>
+                <Typography variant="h5" gutterBottom>
+                  Réponses générés avec l'IA
+                </Typography>
+                <SearchResult result={results} onShowPopup={handleShowPopup} />
+              </ResultContainer>
+
+              <Divider orientation="vertical" flexItem />
+            </>
+          ) : null}
+
+          {resultsQdrant ? (
+            <>
+              <ResultContainer>
+                <Typography variant="h5" gutterBottom>
+                  Réponses générés avec COSINE Similarity
+                </Typography>
+                <SearchResult
+                  result={resultsQdrant.result_qdrant}
+                  onShowPopup={handleShowPopup}
+                />
+              </ResultContainer>
+            </>
+          ) : null}
+        </DualResultContainer>
+      ) : null}
+
+      {/* {results && (
+        <SearchResult result={results} onShowPopup={handleShowPopup} />
+      )} */}
 
       {!results && !loading && (
         <InitialMessage>
@@ -241,7 +359,7 @@ function App() {
       )}
 
       {selectedResultId && (
-        <Popup selectedResultId={selectedResultId} onClose={handleClosePopup} />
+        <Popup selectedResult={selectedResultId} onClose={handleClosePopup} />
       )}
     </StyledDiv>
   );
