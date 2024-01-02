@@ -1,9 +1,8 @@
 import { Dialog } from "@mui/material";
-import React, { useRef } from "react";
-
+import React, { useEffect, useRef } from "react";
 const Popup = ({ onClose, selectedResult }) => {
   const iframeRef = useRef(null);
-
+  console.log(`Popup`, selectedResult);
   const handleIframeLoad = () => {
     const contentWindow = iframeRef.current.contentWindow;
     const iframeDocument = contentWindow.document;
@@ -12,14 +11,19 @@ const Popup = ({ onClose, selectedResult }) => {
     iframeDocument.body.style.backgroundColor = "transparent";
 
     // Scroll to the specified element ID
-    const scrollElement = iframeDocument.getElementById(selectedResult.id);
-
-    if (scrollElement) {
-      scrollElement.style.backgroundColor = "yellow";
-      scrollElement.scrollIntoView();
+    if (Array.isArray(selectedResult.id)) {
+      selectedResult.id.map((element) => {
+        iframeDocument.getElementById(element).style.backgroundColor = "yellow";
+      });
+      iframeDocument.getElementById(selectedResult.id[0]).scrollIntoView();
+    } else {
+      iframeDocument.getElementById(selectedResult.id).style.backgroundColor =
+        "yellow";
+      iframeDocument.getElementById(selectedResult.id).scrollIntoView();
     }
   };
 
+  useEffect(() => {});
   const handleClose = () => {
     onClose();
   };
@@ -35,8 +39,8 @@ const Popup = ({ onClose, selectedResult }) => {
         ref={iframeRef}
         src={
           selectedResult.section
-            ? `../documents/${selectedResult.section}.html`
-            : `../documents/${selectedResult.sectiontext}.html`
+            ? `/documents/${selectedResult.section}.html`
+            : `/documents/${selectedResult.sectiontext}.html`
         }
         title={
           selectedResult.section
@@ -45,7 +49,7 @@ const Popup = ({ onClose, selectedResult }) => {
         }
         width="100%"
         height="800px"
-        // onLoad={handleIframeLoad}
+        onLoad={handleIframeLoad}
       />
     </Dialog>
   );

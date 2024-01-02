@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Card,
   CardActions,
@@ -121,9 +122,9 @@ const SuggestionLink = styled("a")({
     color: "#004080", // Adjust the hover color
   },
 });
-function SearchResult({ result, onShowPopup }) {
-  const [clickedResponses, setClickedResponses] = useState([]);
 
+function SearchResult({ type, result, onShowPopup }) {
+  const [clickedResponses, setClickedResponses] = useState([]);
   const handleGoodAnswer = async (title, query) => {
     if (!clickedResponses.includes(title)) {
       setClickedResponses([...clickedResponses, title]);
@@ -147,19 +148,20 @@ function SearchResult({ result, onShowPopup }) {
     }
   };
 
-  const sortedResults = result.result_qdrant?.sort((a, b) => b.Score - a.Score);
-
   return (
     <ResultContainer>
       <Grid container spacing={2}>
         {result?.map(
           (res, index) =>
             res.titre && (
-              <Grid item key={index} xs={12} sm={6} md={6}>
+              <Grid item key={index} xs={type === "IA" ? 12 : 4}>
                 <Card style={{ height: "100%" }}>
                   <CardContent>
                     <Typography variant="h6" gutterBottom>
-                      {res.titre}
+                      <Box fontWeight="fontWeightMedium" display="inline">
+                        {" "}
+                        {res.titre}
+                      </Box>
                     </Typography>
                     <TruncatedTypography>
                       {res.GPT_Response ? res.GPT_Response : res.Paragraphe}
@@ -206,7 +208,6 @@ function App() {
   const [resultsQdrant, setResultsQdrant] = useState(null);
   const [loading, setLoading] = useState(false);
   const [selectedResultId, setSelectedResultId] = useState(null);
-  const [section, setSection] = useState(null);
   const [otherResults, setOtherResults] = useState(null);
 
   // Inside your React component
@@ -315,7 +316,7 @@ function App() {
       )}
       {results || resultsQdrant ? <LineDivider /> : null}
 
-      {results || resultsQdrant ? (
+      {/* {results || resultsQdrant ? (
         <DualResultContainer>
           {results ? (
             <>
@@ -344,12 +345,72 @@ function App() {
             </>
           ) : null}
         </DualResultContainer>
+      ) : null} */}
+
+      {/* {results || resultsQdrant ? (
+        // <DualResultContainer>
+        <>
+          {results && (
+            <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+              <ResultContainer>
+                <Typography variant="h5" gutterBottom>
+                  Réponses générés avec l'IA
+                </Typography>
+                <SearchResult result={results} onShowPopup={handleShowPopup} />
+              </ResultContainer>
+            </Grid>
+          )}
+
+          {resultsQdrant && (
+            <Grid item xs={12} sm={12} md={24} lg={24} xl={24}>
+              <ResultContainer>
+                <Typography variant="h5" gutterBottom>
+                  Réponses générés avec COSINE Similarity
+                </Typography>
+                <SearchResult
+                  result={resultsQdrant.result_qdrant}
+                  onShowPopup={handleShowPopup}
+                />
+              </ResultContainer>
+            </Grid>
+          )}
+        </>
+      ) : // </DualResultContainer>
+      null} */}
+
+      {results || resultsQdrant ? (
+        <Grid container spacing={2}>
+          {results && (
+            <Grid item xs={4}>
+              <ResultContainer>
+                <Typography variant="h5" gutterBottom>
+                  Réponses générés avec l'IA
+                </Typography>
+                <SearchResult
+                  type={"IA"}
+                  result={results}
+                  onShowPopup={handleShowPopup}
+                />
+              </ResultContainer>
+            </Grid>
+          )}
+
+          {resultsQdrant && (
+            <Grid item xs={8}>
+              <ResultContainer>
+                <Typography variant="h5" gutterBottom>
+                  Réponses générés avec COSINE Similarity
+                </Typography>
+                <SearchResult
+                  type={"Qdrant"}
+                  result={resultsQdrant.result_qdrant}
+                  onShowPopup={handleShowPopup}
+                />
+              </ResultContainer>
+            </Grid>
+          )}
+        </Grid>
       ) : null}
-
-      {/* {results && (
-        <SearchResult result={results} onShowPopup={handleShowPopup} />
-      )} */}
-
       {!results && !loading && (
         <InitialMessage>
           <Typography variant="body1">
