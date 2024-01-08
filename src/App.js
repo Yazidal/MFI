@@ -219,9 +219,13 @@ function App() {
     try {
       setLoading(true);
 
-      const response = await axios.post("http://127.0.0.1:5000/ask", {
-        question: query,
-      });
+      const response = await axios.post(
+        "https://aymanemalih-qdrant-flask.hf.space/ask",
+        {
+          question: query,
+        }
+      );
+      console.log("from /ask:", response);
       const responseQdrant = await axios.post(
         "https://aymanemalih-qdrant-flask.hf.space/chat",
         {
