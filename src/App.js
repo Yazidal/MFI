@@ -31,7 +31,7 @@ const LogoContainer = styled("div")({
 });
 
 const LogoImage = styled("img")({
-  maxWidth: "150px", // Set the maximum width to 150px or adjust as needed
+  maxWidth: "150px",
   height: "auto",
 });
 
@@ -74,25 +74,27 @@ const GoodAnswerButton = styled(Button)({
 });
 
 const InitialMessage = styled("div")({
-  marginTop: "16px", // Add margin top to the div
+  marginTop: "16px",
 });
+
 const TruncatedTypography = styled(Typography)`
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
-  -webkit-line-clamp: 9; // Adjust the number of lines to your preference
+  -webkit-line-clamp: 9;
   -webkit-box-orient: vertical;
 `;
+
 const DualResultContainer = styled("div")({
   display: "flex",
   justifyContent: "space-between",
-
   marginBottom: "16px",
   "& > div": {
     flex: 1,
-    margin: "8px", // Adjust the spacing between the two results
+    margin: "8px",
   },
 });
+
 const LineDivider = styled(Divider)({
   width: "100%",
   marginTop: "16px",
@@ -102,49 +104,48 @@ const LineDivider = styled(Divider)({
 const SuggestionsList = styled("ul")({
   listStyle: "none",
   padding: 0,
-  marginTop: "16px", // Adjust the spacing between the search bar and suggestions list
+  marginTop: "16px",
   display: "flex",
   justifyContent: "space-between",
   flexWrap: "wrap",
 });
 
 const SuggestionItem = styled("li")({
-  width: "48%", // Set the width to 48% for two suggestions per row
+  width: "48%",
   marginBottom: "8px",
 });
 
 const SuggestionLink = styled("a")({
   textDecoration: "none",
-  color: "#1976D2", // Adjust the link color
+  color: "#1976D2",
   cursor: "pointer",
   transition: "color 0.3s ease-in-out",
   "&:hover": {
-    color: "#004080", // Adjust the hover color
+    color: "#004080",
   },
 });
 
 function SearchResult({ type, result, onShowPopup }) {
   const [clickedResponses, setClickedResponses] = useState([]);
+
   const handleGoodAnswer = async (title, query) => {
     if (!clickedResponses.includes(title)) {
       setClickedResponses([...clickedResponses, title]);
 
       const dataToSend = {
         answer: "2(3)a)A)",
-        texte: "answer simple no need to worrry",
+        texte: "answer simple no need to worry",
         collection: "question_answer.answer",
       };
 
-      axios
-        .post(
+      try {
+        const response = await axios.post(
           `https://00c5-105-67-135-75.ngrok-free.app/${dataToSend}/${query}`
-        )
-        .then((response) => {
-          console.log(response.data);
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+        );
+        console.log(response.data);
+      } catch (error) {
+        console.error(error);
+      }
     }
   };
 
@@ -159,7 +160,6 @@ function SearchResult({ type, result, onShowPopup }) {
                   <CardContent>
                     <Typography variant="h6" gutterBottom>
                       <Box fontWeight="fontWeightMedium" display="inline">
-                        {" "}
                         {res.titre}
                       </Box>
                     </Typography>
@@ -183,14 +183,14 @@ function SearchResult({ type, result, onShowPopup }) {
                       }
                       size="small"
                     >
-                      Show Details
+                      Afficher les détails
                     </Button>
                     <Button
                       variant="contained"
                       onClick={() => handleGoodAnswer(res.La_loi)}
                       disabled={clickedResponses.includes(res.La_loi)}
                     >
-                      Good Answer
+                      Bonne réponse
                     </Button>
                   </CardActions>
                 </Card>
@@ -210,37 +210,32 @@ function App() {
   const [selectedResultId, setSelectedResultId] = useState(null);
   const [otherResults, setOtherResults] = useState(null);
 
-  // Inside your React component
-
   const handleSearch = async () => {
     setResults(null);
     setOtherResults(null);
     setResultsQdrant(null);
+
     try {
       setLoading(true);
 
-      const response = await axios.post(
-        "https://aymanemalih-qdrant-flask.hf.space/ask",
-        {
-          question: query,
-        }
-      );
-      console.log("from /ask:", response);
+      const response = await axios.post("http://127.0.0.1:5000/ask", {
+        question: query,
+      });
+
       const responseQdrant = await axios.post(
         "https://aymanemalih-qdrant-flask.hf.space/chat",
         {
           messages: [{ role: "user", content: query }],
         }
       );
+
       const autresquestions = await axios.post(
         "https://aymanemalih-qdrant-flask.hf.space/generateQuestions",
         {
           messages: [{ role: "user", content: query }],
         }
       );
-      console.log("response: ", response.data);
-      console.log("responseQdrant: ", responseQdrant.data);
-      console.log("autresquestions: ", autresquestions.data);
+
       setResultsQdrant(responseQdrant.data);
       setResults(response.data);
       setOtherResults(autresquestions.data);
@@ -252,7 +247,6 @@ function App() {
   };
 
   const handleShowPopup = (resultId) => {
-    console.log("showPopup: ", resultId);
     setSelectedResultId(resultId);
   };
 
@@ -298,7 +292,7 @@ function App() {
       {otherResults && otherResults.length > 0 && (
         <>
           <Typography variant="h5" gutterBottom>
-            Questions similaire
+            Questions similaires
           </Typography>
           <SuggestionsList>
             {otherResults.slice(0, 3).map((suggestion, index) => (
@@ -318,69 +312,8 @@ function App() {
           </SuggestionsList>
         </>
       )}
+
       {results || resultsQdrant ? <LineDivider /> : null}
-
-      {/* {results || resultsQdrant ? (
-        <DualResultContainer>
-          {results ? (
-            <>
-              <ResultContainer>
-                <Typography variant="h5" gutterBottom>
-                  Réponses générés avec l'IA
-                </Typography>
-                <SearchResult result={results} onShowPopup={handleShowPopup} />
-              </ResultContainer>
-
-              <Divider orientation="vertical" flexItem />
-            </>
-          ) : null}
-
-          {resultsQdrant ? (
-            <>
-              <ResultContainer>
-                <Typography variant="h5" gutterBottom>
-                  Réponses générés avec COSINE Similarity
-                </Typography>
-                <SearchResult
-                  result={resultsQdrant.result_qdrant}
-                  onShowPopup={handleShowPopup}
-                />
-              </ResultContainer>
-            </>
-          ) : null}
-        </DualResultContainer>
-      ) : null} */}
-
-      {/* {results || resultsQdrant ? (
-        // <DualResultContainer>
-        <>
-          {results && (
-            <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-              <ResultContainer>
-                <Typography variant="h5" gutterBottom>
-                  Réponses générés avec l'IA
-                </Typography>
-                <SearchResult result={results} onShowPopup={handleShowPopup} />
-              </ResultContainer>
-            </Grid>
-          )}
-
-          {resultsQdrant && (
-            <Grid item xs={12} sm={12} md={24} lg={24} xl={24}>
-              <ResultContainer>
-                <Typography variant="h5" gutterBottom>
-                  Réponses générés avec COSINE Similarity
-                </Typography>
-                <SearchResult
-                  result={resultsQdrant.result_qdrant}
-                  onShowPopup={handleShowPopup}
-                />
-              </ResultContainer>
-            </Grid>
-          )}
-        </>
-      ) : // </DualResultContainer>
-      null} */}
 
       {results || resultsQdrant ? (
         <Grid container spacing={2}>
@@ -388,7 +321,7 @@ function App() {
             <Grid item xs={4}>
               <ResultContainer>
                 <Typography variant="h5" gutterBottom>
-                  Réponses générés avec l'IA
+                  Réponses générées avec l'IA
                 </Typography>
                 <SearchResult
                   type={"IA"}
@@ -403,7 +336,7 @@ function App() {
             <Grid item xs={8}>
               <ResultContainer>
                 <Typography variant="h5" gutterBottom>
-                  Réponses générés avec COSINE Similarity
+                  Réponses générées avec COSINE Similarity
                 </Typography>
                 <SearchResult
                   type={"Qdrant"}
@@ -415,6 +348,7 @@ function App() {
           )}
         </Grid>
       ) : null}
+
       {!results && !loading && (
         <InitialMessage>
           <Typography variant="body1">
