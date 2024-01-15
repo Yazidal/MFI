@@ -1,5 +1,4 @@
 import {
-  Box,
   Button,
   Card,
   CardActions,
@@ -156,12 +155,16 @@ function SearchResult({ type, result, onShowPopup }) {
           (res, index) =>
             res.titre && (
               <Grid item key={index} xs={type === "IA" ? 12 : 4}>
-                <Card style={{ height: "100%" }}>
+                <Card
+                  sx={{
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
+                >
                   <CardContent>
-                    <Typography variant="h6" gutterBottom>
-                      <Box fontWeight="fontWeightMedium" display="inline">
-                        {res.titre}
-                      </Box>
+                    <Typography variant="h6" fontWeight="bold" gutterBottom>
+                      {res.titre}
                     </Typography>
                     <TruncatedTypography>
                       {res.GPT_Response ? res.GPT_Response : res.Paragraphe}
@@ -171,7 +174,13 @@ function SearchResult({ type, result, onShowPopup }) {
                       {res.reference ? res.reference : res.La_loi}
                     </Typography>
                   </CardContent>
-                  <CardActions>
+                  <CardActions
+                    sx={{
+                      marginTop: "auto", // Push buttons to the bottom
+                      display: "flex",
+                      justifyContent: "space-between", // Align buttons at the ends
+                    }}
+                  >
                     <Button
                       variant="outlined"
                       onClick={() =>
@@ -218,7 +227,7 @@ function App() {
     try {
       setLoading(true);
 
-      const response = await axios.post("http://127.0.0.1:5000/ask", {
+      const response = await axios.post("http://173.209.40.46:8070/ask", {
         question: query,
       });
 
