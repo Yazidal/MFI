@@ -4,6 +4,9 @@ import {
   CardActions,
   CardContent,
   CircularProgress,
+  Dialog,
+  DialogContent,
+  DialogTitle,
   Divider,
   Grid,
   InputAdornment,
@@ -13,6 +16,8 @@ import {
 import { styled } from "@mui/system";
 import axios from "axios";
 import React, { useState } from "react";
+import "slick-carousel/slick/slick-theme.css";
+import "slick-carousel/slick/slick.css";
 import Popup from "./components/Popup";
 import logo from "./media/logo.png";
 
@@ -61,7 +66,7 @@ const SearchButton = styled(Button)({
 
 const ResultContainer = styled("div")({
   width: "100%",
-  maxWidth: "1000px",
+  // maxWidth: "1000px",
 });
 
 const ResponseItem = styled("div")({
@@ -93,7 +98,13 @@ const DualResultContainer = styled("div")({
     margin: "8px",
   },
 });
-
+const FixedButton = styled(Button)({
+  position: "fixed",
+  bottom: "20px", // Adjust this value as per your preference
+  left: "20px", // Adjust this value as per your preference
+  backgroundColor: "orange", // Add your preferred background color here
+  color: "white",
+});
 const LineDivider = styled(Divider)({
   width: "100%",
   marginTop: "16px",
@@ -139,7 +150,7 @@ function SearchResult({ type, result, onShowPopup }) {
 
       try {
         const response = await axios.post(
-          `https://00c5-105-67-135-75.ngrok-free.app/${dataToSend}/${query}`
+          `https://b004-105-157-74-204.ngrok-free.app/${dataToSend}/${query}`
         );
         console.log(response.data);
       } catch (error) {
@@ -154,7 +165,8 @@ function SearchResult({ type, result, onShowPopup }) {
         {result?.map(
           (res, index) =>
             res.titre && (
-              <Grid item key={index} xs={type === "IA" ? 12 : 4}>
+              // <Grid item key={index} xs={type === "IA" ? 12 : 4}>
+              <Grid item key={index} xs={4}>
                 <Card
                   sx={{
                     height: "100%",
@@ -212,12 +224,64 @@ function SearchResult({ type, result, onShowPopup }) {
 }
 
 function App() {
+  const [openModal, setOpenModal] = useState(false);
+  const [formData, setFormData] = useState({
+    field1: "",
+    field2: "Jack",
+  });
+  const [isLoading, setIsLoading] = useState(false);
+
   const [query, setQuery] = useState("");
   const [results, setResults] = useState(null);
   const [resultsQdrant, setResultsQdrant] = useState(null);
   const [loading, setLoading] = useState(false);
   const [selectedResultId, setSelectedResultId] = useState(null);
   const [otherResults, setOtherResults] = useState(null);
+  // Functions to handle modal open/close
+  const handleOpenModal = () => {
+    setOpenModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setOpenModal(false);
+  };
+
+  // Function to handle form input changes
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+  const handleSubmitForm = async () => {
+    setIsLoading(true); // Set loading state to true
+    // Simulate API call or any asynchronous operation
+
+    try {
+      // Make API call with form data
+      const obj = {
+        question_id: resultsQdrant.question.id,
+        reference: formData.field1,
+        source: formData.field2,
+      };
+
+      console.log("API", obj);
+      const response = await axios.post(
+        "https://b004-105-157-74-204.ngrok-free.app/feedback",
+        obj
+      );
+      console.log(response.data); // Log response or handle accordingly
+      setIsLoading(false);
+      // Close the modal after successful submission
+
+      handleCloseModal();
+      if (response.data) {
+        window.alert("Your answer was sent to the database.");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const handleSearch = async () => {
     setResults(null);
@@ -226,28 +290,32 @@ function App() {
 
     try {
       setLoading(true);
-
-      const response = await axios.post("http://173.209.40.46:8070/ask", {
-        question: query,
-      });
+      // http://127.0.0.1:5000/ask
+      // http://173.209.40.46:8070/ask
+      // const response = await axios.post("http://127.0.0.1:5000/ask", {
+      //   question: query,
+      // });
 
       const responseQdrant = await axios.post(
-        "https://aymanemalih-qdrant-flask.hf.space/chat",
+        "https://b004-105-157-74-204.ngrok-free.app/chat",
         {
           messages: [{ role: "user", content: query }],
         }
       );
 
       const autresquestions = await axios.post(
-        "https://aymanemalih-qdrant-flask.hf.space/generateQuestions",
+        "https://b004-105-157-74-204.ngrok-free.app/generateQuestions",
         {
-          messages: [{ role: "user", content: query }],
+          query: query,
+          // messages: [{ role: "user", content: query }],
         }
       );
 
       setResultsQdrant(responseQdrant.data);
-      setResults(response.data);
+      // setResults(response.data);
       setOtherResults(autresquestions.data);
+      console.log("similar question:", autresquestions);
+      console.log("chat response:", responseQdrant);
     } catch (error) {
       console.error(error);
     } finally {
@@ -306,15 +374,15 @@ function App() {
           <SuggestionsList>
             {otherResults.slice(0, 3).map((suggestion, index) => (
               <SuggestionItem key={index}>
-                <SuggestionLink onClick={() => setQuery(suggestion.slice(3))}>
-                  <Typography>{suggestion.slice(3)}</Typography>
+                <SuggestionLink onClick={() => setQuery(suggestion)}>
+                  <Typography>{suggestion}</Typography>
                 </SuggestionLink>
               </SuggestionItem>
             ))}
             {otherResults.slice(3, 6).map((suggestion, index) => (
               <SuggestionItem key={index}>
-                <SuggestionLink onClick={() => setQuery(suggestion.slice(3))}>
-                  <Typography>{suggestion.slice(3)}</Typography>
+                <SuggestionLink onClick={() => setQuery(suggestion)}>
+                  <Typography>{suggestion}</Typography>
                 </SuggestionLink>
               </SuggestionItem>
             ))}
@@ -325,8 +393,12 @@ function App() {
       {results || resultsQdrant ? <LineDivider /> : null}
 
       {results || resultsQdrant ? (
-        <Grid container spacing={2}>
-          {results && (
+        <>
+          <FixedButton variant="contained" onClick={handleOpenModal}>
+            Aucune bonne reponse trouvé
+          </FixedButton>
+          <Grid container>
+            {/* {results && (
             <Grid item xs={4}>
               <ResultContainer>
                 <Typography variant="h5" gutterBottom>
@@ -339,23 +411,60 @@ function App() {
                 />
               </ResultContainer>
             </Grid>
-          )}
+          )} */}
 
-          {resultsQdrant && (
-            <Grid item xs={8}>
-              <ResultContainer>
-                <Typography variant="h5" gutterBottom>
-                  Réponses générées avec COSINE Similarity
-                </Typography>
-                <SearchResult
-                  type={"Qdrant"}
-                  result={resultsQdrant.result_qdrant}
-                  onShowPopup={handleShowPopup}
-                />
-              </ResultContainer>
-            </Grid>
-          )}
-        </Grid>
+            {/* {resultsQdrant && (
+            <Grid item> */}
+            <ResultContainer>
+              <Typography variant="h5" gutterBottom>
+                Réponses générées avec COSINE Similarity
+              </Typography>
+
+              <Dialog open={openModal} onClose={handleCloseModal}>
+                <DialogTitle>
+                  Assigné la reference de l'article de la bonne réponse
+                </DialogTitle>
+                <DialogContent>
+                  {/* Form fields */}
+                  <TextField
+                    name="field1"
+                    label="Réference"
+                    value={formData.field1}
+                    onChange={handleInputChange}
+                    fullWidth
+                    margin="normal"
+                  />
+                  <TextField
+                    name="field2"
+                    label="Auteur"
+                    value={formData.field2}
+                    onChange={handleInputChange}
+                    fullWidth
+                    margin="normal"
+                  />
+                  {isLoading ? (
+                    <CircularProgress />
+                  ) : (
+                    <Button
+                      variant="contained"
+                      disabled={isLoading} // Disable button when loading
+                      onClick={handleSubmitForm}
+                    >
+                      Envoyer
+                    </Button>
+                  )}
+                </DialogContent>
+              </Dialog>
+              <SearchResult
+                type={"Qdrant"}
+                result={resultsQdrant.result_qdrant}
+                onShowPopup={handleShowPopup}
+              />
+            </ResultContainer>
+            {/* </Grid>
+          )} */}
+          </Grid>
+        </>
       ) : null}
 
       {!results && !loading && (
