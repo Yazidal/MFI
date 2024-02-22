@@ -150,7 +150,7 @@ function SearchResult({ type, result, onShowPopup }) {
 
       try {
         const response = await axios.post(
-          `https://b004-105-157-74-204.ngrok-free.app/${dataToSend}/${query}`
+          `https://27b5-160-176-123-220.ngrok-free.app/${dataToSend}/${query}`
         );
         console.log(response.data);
       } catch (error) {
@@ -165,7 +165,6 @@ function SearchResult({ type, result, onShowPopup }) {
         {result?.map(
           (res, index) =>
             res.titre && (
-              // <Grid item key={index} xs={type === "IA" ? 12 : 4}>
               <Grid item key={index} xs={4}>
                 <Card
                   sx={{
@@ -223,6 +222,95 @@ function SearchResult({ type, result, onShowPopup }) {
   );
 }
 
+function HistoryResult({ type, result, onShowPopup }) {
+  const [clickedResponses, setClickedResponses] = useState([]);
+
+  const handleGoodAnswer = async (title, query) => {
+    if (!clickedResponses.includes(title)) {
+      setClickedResponses([...clickedResponses, title]);
+
+      const dataToSend = {
+        answer: "2(3)a)A)",
+        texte: "answer simple no need to worry",
+        collection: "question_answer.answer",
+      };
+
+      try {
+        const response = await axios.post(
+          `https://27b5-160-176-123-220.ngrok-free.app/${dataToSend}/${query}`
+        );
+        console.log(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  };
+
+  return (
+    <ResultContainer>
+      <Grid container spacing={2}>
+        {result?.map(
+          (res, index) =>
+            res.titre && (
+              <Grid item key={index} xs={4}>
+                <Card
+                  sx={{
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
+                >
+                  <CardContent>
+                    <Typography variant="h6" fontWeight="bold" gutterBottom>
+                      {res.titre}
+                    </Typography>
+                    <TruncatedTypography>
+                      {res.GPT_Response ? res.GPT_Response : res.Paragraphe}
+                    </TruncatedTypography>
+                    <Typography>
+                      <b>Référence:</b>{" "}
+                      {res.reference ? res.reference : res.La_loi}
+                    </Typography>
+                  </CardContent>
+                  <CardActions
+                    sx={{
+                      marginTop: "auto", // Push buttons to the bottom
+                      display: "flex",
+                      justifyContent: "space-between", // Align buttons at the ends
+                    }}
+                  >
+                    <Button
+                      variant="outlined"
+                      onClick={() =>
+                        onShowPopup({
+                          id: res.hyperlink,
+                          section: res.section_label,
+                          sectiontext: res.section_text,
+                        })
+                      }
+                      size="small"
+                      color="success"
+                    >
+                      Afficher les détails
+                    </Button>
+                    <Button
+                      variant="contained"
+                      onClick={() => handleGoodAnswer(res.La_loi)}
+                      disabled={clickedResponses.includes(res.La_loi)}
+                      color="success"
+                    >
+                      Bonne réponse
+                    </Button>
+                  </CardActions>
+                </Card>
+              </Grid>
+            )
+        )}
+      </Grid>
+    </ResultContainer>
+  );
+}
+
 function App() {
   const [openModal, setOpenModal] = useState(false);
   const [formData, setFormData] = useState({
@@ -234,6 +322,10 @@ function App() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState(null);
   const [resultsQdrant, setResultsQdrant] = useState(null);
+
+  const [histories, setHistories] = useState(null);
+  const [historiesQdrant, setHistoriesQdrant] = useState(null);
+
   const [loading, setLoading] = useState(false);
   const [selectedResultId, setSelectedResultId] = useState(null);
   const [otherResults, setOtherResults] = useState(null);
@@ -267,7 +359,7 @@ function App() {
 
       console.log("API", obj);
       const response = await axios.post(
-        "https://b004-105-157-74-204.ngrok-free.app/feedback",
+        "https://27b5-160-176-123-220.ngrok-free.app/feedback",
         obj
       );
       console.log(response.data); // Log response or handle accordingly
@@ -287,6 +379,8 @@ function App() {
     setResults(null);
     setOtherResults(null);
     setResultsQdrant(null);
+    setHistories(null);
+    setHistoriesQdrant(null);
 
     try {
       setLoading(true);
@@ -297,14 +391,21 @@ function App() {
       // });
 
       const responseQdrant = await axios.post(
-        "https://b004-105-157-74-204.ngrok-free.app/chat",
+        "https://27b5-160-176-123-220.ngrok-free.app/chat",
+        {
+          messages: [{ role: "user", content: query }],
+        }
+      );
+
+      const historyQdrant = await axios.post(
+        "https://27b5-160-176-123-220.ngrok-free.app/history",
         {
           messages: [{ role: "user", content: query }],
         }
       );
 
       const autresquestions = await axios.post(
-        "https://b004-105-157-74-204.ngrok-free.app/generateQuestions",
+        "https://27b5-160-176-123-220.ngrok-free.app/generateQuestions",
         {
           query: query,
           // messages: [{ role: "user", content: query }],
@@ -312,10 +413,11 @@ function App() {
       );
 
       setResultsQdrant(responseQdrant.data);
-      // setResults(response.data);
+      setHistoriesQdrant(historyQdrant.data);
       setOtherResults(autresquestions.data);
       console.log("similar question:", autresquestions);
       console.log("chat response:", responseQdrant);
+      console.log("history response:", historyQdrant);
     } catch (error) {
       console.error(error);
     } finally {
@@ -336,7 +438,6 @@ function App() {
       <LogoContainer>
         <LogoImage src={logo} alt="Your Logo" />
       </LogoContainer>
-
       <SearchContainer>
         <SearchBar>
           <SearchInput
@@ -365,7 +466,6 @@ function App() {
           />
         </SearchBar>
       </SearchContainer>
-
       {otherResults && otherResults.length > 0 && (
         <>
           <Typography variant="h5" gutterBottom>
@@ -389,8 +489,62 @@ function App() {
           </SuggestionsList>
         </>
       )}
-
       {results || resultsQdrant ? <LineDivider /> : null}
+
+      {histories || historiesQdrant ? (
+        <>
+          <Grid container>
+            <ResultContainer>
+              <Typography variant="h5" gutterBottom>
+                L'historique des réponses
+              </Typography>
+
+              <Dialog open={openModal} onClose={handleCloseModal}>
+                <DialogTitle>
+                  Assigné la référence de l'article de la bonne réponse
+                </DialogTitle>
+                <DialogContent>
+                  {/* Form fields */}
+                  <TextField
+                    name="field1"
+                    label="Référence"
+                    value={formData.field1}
+                    onChange={handleInputChange}
+                    fullWidth
+                    margin="normal"
+                  />
+                  <TextField
+                    name="field2"
+                    label="Auteur"
+                    value={formData.field2}
+                    onChange={handleInputChange}
+                    fullWidth
+                    margin="normal"
+                  />
+                  {isLoading ? (
+                    <CircularProgress />
+                  ) : (
+                    <Button
+                      variant="contained"
+                      disabled={isLoading}
+                      onClick={handleSubmitForm}
+                    >
+                      Envoyer
+                    </Button>
+                  )}
+                </DialogContent>
+              </Dialog>
+              <HistoryResult
+                type={"Qdrant"}
+                result={historiesQdrant.result_history}
+                onShowPopup={handleShowPopup}
+              />
+            </ResultContainer>
+          </Grid>
+        </>
+      ) : null}
+
+      {histories || historiesQdrant ? <LineDivider /> : null}
 
       {results || resultsQdrant ? (
         <>
@@ -416,9 +570,9 @@ function App() {
             {/* {resultsQdrant && (
             <Grid item> */}
             <ResultContainer>
-              <Typography variant="h5" gutterBottom>
+              {/* <Typography variant="h5" gutterBottom>
                 Réponses générées avec COSINE Similarity
-              </Typography>
+              </Typography> */}
 
               <Dialog open={openModal} onClose={handleCloseModal}>
                 <DialogTitle>
@@ -466,7 +620,6 @@ function App() {
           </Grid>
         </>
       ) : null}
-
       {!results && !loading && (
         <InitialMessage>
           <Typography variant="body1">
@@ -474,7 +627,6 @@ function App() {
           </Typography>
         </InitialMessage>
       )}
-
       {selectedResultId && (
         <Popup selectedResult={selectedResultId} onClose={handleClosePopup} />
       )}
